@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/allCountriesFragment">
+
+    <fragment
+        android:id="@+id/allCountriesFragment"
+        android:name="com.hera.restcountries.ui.fragment.all.AllCountriesFragment"
+        android:label="Countries"
+        tools:layout="@layout/fragment_all_countries">
+        <action
+            android:id="@+id/action_allCountriesFragment_to_searchFragment"
+            app:destination="@id/searchFragment" />
+        <action
+            android:id="@+id/action_allCountriesFragment_to_countryFragment"
+            app:destination="@id/countryFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.hera.restcountries.ui.fragment.search.SearchFragment"
+        android:label="{query}"
+        tools:layout="@layout/fragment_search">
+        <action
+            android:id="@+id/action_searchFragment_to_countryFragment"
+            app:destination="@id/countryFragment" />
+        <argument
+            android:name="query"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/countryFragment"
+        android:name="com.hera.restcountries.ui.fragment.country.CountryFragment"
+        android:label="{country_name}"
+        tools:layout="@layout/fragment_country" >
+        <argument
+            android:name="country"
+            app:argType="com.hera.restcountries.data.model.Country" />
+        <argument
+            android:name="country_name"
+            app:argType="string" />
+    </fragment>
+</navigation>
