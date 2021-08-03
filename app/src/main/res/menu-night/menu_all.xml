@@ -9,6 +9,6 @@
 
     <item android:id="@+id/action_theme"
         android:title="Theme"
-        android:icon="@drawable/ic_dark_mode"
+        android:icon="@drawable/ic_light_mode"
         app:showAsAction="ifRoom" />
 </menu>

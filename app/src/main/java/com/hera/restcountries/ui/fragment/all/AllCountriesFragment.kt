@@ -5,9 +5,6 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import android.widget.EditText
-import android.widget.ProgressBar
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SearchView
 import androidx.datastore.preferences.core.edit
@@ -16,7 +13,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.hera.restcountries.R
 import com.hera.restcountries.data.model.Country
 import com.hera.restcountries.databinding.FragmentAllCountriesBinding
@@ -32,10 +28,8 @@ import com.hera.restcountries.util.extension.setOnQueryListener
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import org.w3c.dom.Text
 
 @AndroidEntryPoint
 class
@@ -61,9 +55,17 @@ AllCountriesFragment : Fragment(R.layout.fragment_all_countries), CountriesAdapt
         super.onViewCreated(view, savedInstanceState)
         getPreferencesData()
         initializeViews(view)
-        if (countriesAdapter.differ.currentList.isEmpty())
+        getPreservedDataOrLoadNew()
+    }
+
+
+    private fun getPreservedDataOrLoadNew() {
+        if (viewModel.allCountries != null)
+            countriesAdapter.differ.submitList(viewModel.allCountries)
+        else
             observeCountries()
     }
+
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
@@ -112,12 +114,13 @@ AllCountriesFragment : Fragment(R.layout.fragment_all_countries), CountriesAdapt
 
 
     private fun observeCountries() = lifecycleScope.launch {
-        viewModel.allCountries.collect { resource ->
+        viewModel.allCountriesFlow.collect { resource ->
             when (resource) {
                 is Resource.Loading -> { viewsVisibilityOnLoading() }
                 is Resource.Success -> {
                     viewsVisibilityOnSuccess()
-                    countriesAdapter.differ.submitList(resource.data)
+                    viewModel.allCountries = resource.data
+                    countriesAdapter.differ.submitList(viewModel.allCountries)
                 }
                 is Resource.Error -> { viewsVisibilityOnError() }
             }

@@ -38,8 +38,8 @@ class SearchFragment : Fragment(R.layout.fragment_search), CountriesAdapter.List
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initializeViews(view)
-        if (countriesAdapter.differ.currentList.isEmpty())
-            observeCountries()
+        getPreservedDataOrLoadNew()
+
     }
 
 
@@ -55,13 +55,22 @@ class SearchFragment : Fragment(R.layout.fragment_search), CountriesAdapter.List
     }
 
 
+    private fun getPreservedDataOrLoadNew() {
+        if (viewModel.countriesByName != null)
+            countriesAdapter.differ.submitList(viewModel.countriesByName)
+        else
+            observeCountries()
+    }
+
+
     private fun observeCountries() = lifecycleScope.launch {
-        viewModel.countriesByName.collect { resource ->
+        viewModel.countriesByNameFlow.collect { resource ->
             when (resource) {
                 is Resource.Loading -> { viewsVisibilityOnLoading() }
                 is Resource.Success -> {
                     viewsVisibilityOnSuccess()
-                    countriesAdapter.differ.submitList(resource.data)
+                    viewModel.countriesByName = resource.data
+                    countriesAdapter.differ.submitList(viewModel.countriesByName)
                 }
                 is Resource.Error -> {
                     if (resource.message == "No results") {
